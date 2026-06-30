@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cannacrypted · New Strains — Breeder, Lineage & Terpene Report</title>
+<style>
+  :root{
+    --bg:#0c0f0d; --bg2:#11161300; --panel:#141b17; --panel2:#1a231d;
+    --line:#26332b; --line2:#324235; --text:#e8f0ea; --muted:#9bb0a2;
+    --accent:#5ee089; --accent2:#34c97a; --gold:#e8c75a;
+    --warn:#eab14a; --danger:#ef6b6b; --chip:#1f2b23;
+    --radius:14px; --shadow:0 8px 30px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(52,201,122,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(94,224,137,.07), transparent 55%),
+      var(--bg);
+    color:var(--text); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+
+  /* Header */
+  header.site{
+    display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;
+    padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:22px;
+  }
+  .brand{display:flex;align-items:center;gap:14px}
+  .leaf{
+    width:46px;height:46px;border-radius:12px;flex:0 0 auto;
+    background:linear-gradient(145deg,var(--accent),var(--accent2));
+    display:grid;place-items:center;color:#07120b;font-weight:800;font-size:22px;
+    box-shadow:0 6px 18px rgba(52,201,122,.35);
+  }
+  .brand h1{font-size:15px;letter-spacing:.18em;text-transform:uppercase;margin:0;color:var(--accent)}
+  .brand .cid{font-size:12px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .title-block h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}
+  .title-block .sub{color:var(--muted);font-size:13.5px;margin-top:4px}
+
+  /* Toolbar */
+  .toolbar{
+    position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    background:rgba(12,15,13,.82);backdrop-filter:blur(10px);
+    padding:12px;border:1px solid var(--line);border-radius:var(--radius);margin-bottom:18px;
+  }
+  .toolbar input[type=search],.toolbar select{
+    background:var(--panel);border:1px solid var(--line2);color:var(--text);
+    padding:9px 12px;border-radius:10px;font-size:13.5px;outline:none;
+  }
+  .toolbar input[type=search]{min-width:200px;flex:1}
+  .toolbar input[type=search]:focus,.toolbar select:focus{border-color:var(--accent2)}
+  .btn{
+    background:var(--panel2);border:1px solid var(--line2);color:var(--text);
+    padding:9px 13px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600;
+    display:inline-flex;align-items:center;gap:7px;transition:.15s;
+  }
+  .btn:hover{border-color:var(--accent2);background:#1f2b23}
+  .btn.primary{background:linear-gradient(145deg,var(--accent),var(--accent2));color:#07120b;border:none}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn.active{outline:2px solid var(--accent);background:#23332a}
+  .spacer{flex:1}
+  .saved-note{font-size:12px;color:var(--muted)}
+
+  /* Disclaimer */
+  .disclaimer{
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:12px;padding:14px 16px;color:var(--muted);font-size:13px;margin-bottom:22px;
+  }
+  .disclaimer b{color:var(--gold)}
+
+  /* Section headers */
+  .sec-h{display:flex;align-items:center;gap:12px;margin:34px 0 14px}
+  .sec-h h3{margin:0;font-size:18px;letter-spacing:.02em}
+  .sec-h .rule{flex:1;height:1px;background:var(--line)}
+
+  /* Tables */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--panel2);color:var(--accent);text-transform:uppercase;font-size:11px;letter-spacing:.08em;position:sticky;top:0}
+  tbody tr:hover{background:rgba(94,224,137,.04)}
+  tbody tr:last-child td{border-bottom:none}
+  .row-flag{color:var(--gold)}
+  td a.jump{color:var(--text);font-weight:600;border-bottom:1px dotted var(--line2)}
+
+  /* Cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
+  .card{
+    background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    box-shadow:var(--shadow);display:flex;flex-direction:column;
+  }
+  .card .imgbox{
+    position:relative;aspect-ratio:16/9;background:
+      repeating-linear-gradient(45deg,#101712,#101712 12px,#0e140f 12px,#0e140f 24px);
+    display:grid;place-items:center;border-bottom:1px solid var(--line);overflow:hidden;
+  }
+  .card .imgbox img{width:100%;height:100%;object-fit:cover}
+  .imgph{color:var(--muted);font-size:12.5px;text-align:center;padding:14px}
+  .imgph .lf{font-size:30px;display:block;margin-bottom:6px;opacity:.6}
+  .img-tools{position:absolute;top:8px;right:8px;display:none;gap:6px}
+  .editing .img-tools{display:flex}
+  .mini{font-size:11px;padding:5px 8px;border-radius:8px;background:rgba(8,12,9,.8);border:1px solid var(--line2);color:var(--text);cursor:pointer}
+  .mini:hover{border-color:var(--accent2)}
+
+  .card .body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:11px;flex:1}
+  .card .cap{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .card h4{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .num{font-size:11px;color:var(--muted);font-family:ui-monospace,monospace;margin-bottom:2px}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+  .badge{font-size:11px;padding:3px 9px;border-radius:999px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+  .badge.type{background:var(--chip);color:var(--accent);border:1px solid var(--line2)}
+  .badge.flag{background:rgba(234,177,74,.12);color:var(--gold);border:1px solid rgba(234,177,74,.3)}
+  .badge.flag.ok{background:rgba(94,224,137,.1);color:var(--accent);border:1px solid rgba(94,224,137,.25)}
+
+  .field{display:flex;flex-direction:column;gap:3px}
+  .field .lab{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .field .val{font-size:13.5px}
+  .val.notes{color:var(--muted);font-size:12.5px;line-height:1.55}
+
+  .terps{display:flex;flex-wrap:wrap;gap:6px}
+  .terp{font-size:11.5px;padding:4px 10px;border-radius:999px;font-weight:600;border:1px solid transparent}
+  .t-limonene{background:rgba(234,199,90,.14);color:#f0d479;border-color:rgba(234,199,90,.3)}
+  .t-caryophyllene{background:rgba(214,122,84,.14);color:#e6957a;border-color:rgba(214,122,84,.3)}
+  .t-myrcene{background:rgba(94,224,137,.13);color:#7ee6a3;border-color:rgba(94,224,137,.28)}
+  .t-humulene{background:rgba(160,140,110,.16);color:#c9b48f;border-color:rgba(160,140,110,.32)}
+  .t-pinene{background:rgba(90,200,170,.14);color:#74d9bd;border-color:rgba(90,200,170,.3)}
+  .t-linalool{background:rgba(170,130,220,.16);color:#c2a3ea;border-color:rgba(170,130,220,.32)}
+  .t-default{background:var(--chip);color:var(--muted);border-color:var(--line2)}
+
+  .sources{display:flex;flex-wrap:wrap;gap:8px}
+  .src{font-size:12px;display:inline-flex;align-items:center;gap:5px;background:var(--chip);
+    border:1px solid var(--line2);padding:5px 10px;border-radius:9px;color:var(--text)}
+  .src:hover{border-color:var(--accent2);text-decoration:none}
+  .src::before{content:"↗";color:var(--accent);font-size:11px}
+
+  /* Edit affordances */
+  [contenteditable="true"]{outline:none}
+  .editing [data-edit]{
+    background:#0f1712;border:1px dashed var(--line2);border-radius:8px;padding:6px 9px;
+    transition:.15s;cursor:text;
+  }
+  .editing [data-edit]:hover{border-color:var(--accent2)}
+  .editing [data-edit]:focus{border-color:var(--accent);border-style:solid;background:#101a13}
+  .edit-only{display:none}
+  .editing .edit-only{display:block}
+  .edit-only textarea,.edit-only input{
+    width:100%;background:#0f1712;border:1px solid var(--line2);color:var(--text);
+    border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;resize:vertical;
+  }
+  .edit-only label{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;display:block;margin:8px 0 3px}
+
+  footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  .flagbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 18px}
+  .flagbox li{margin:10px 0;color:var(--muted);font-size:13px}
+  .hidden{display:none !important}
+
+  @media print{
+    .toolbar,.img-tools,.edit-only{display:none !important}
+    body{background:#fff;color:#111}
+    .card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="site">
+    <div class="brand">
+      <div class="leaf">✦</div>
+      <div>
+        <h1>cannacrypted</h1>
+        <div class="cid" id="callId">kaleidescope-collab.cannacrypted</div>
+      </div>
+    </div>
+    <div class="title-block">
+      <h2 id="docTitle">New Strains — Breeder, Lineage &amp; Terpene Report</h2>
+      <div class="sub" id="docSub"></div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="Search strain, breeder, lineage, terpene…">
+    <select id="typeFilter"><option value="">All types</option></select>
+    <select id="terpFilter"><option value="">All terpenes</option></select>
+    <div class="spacer"></div>
+    <button class="btn" id="editBtn">✎ Edit mode</button>
+    <button class="btn" id="exportBtn">⤓ Export JSON</button>
+    <button class="btn" id="importBtn">⤒ Import JSON</button>
+    <button class="btn" id="htmlBtn">⤓ Download HTML</button>
+    <button class="btn" id="printBtn">⎙ Print</button>
+    <button class="btn" id="resetBtn">↺ Reset</button>
+    <input type="file" id="importFile" accept="application/json" class="hidden">
+    <span class="saved-note" id="savedNote"></span>
+  </div>
+
+  <div class="disclaimer" id="disclaimer"></div>
+
+  <div class="sec-h"><h3>Quick reference</h3><div class="rule"></div></div>
+  <div class="tbl-wrap">
+    <table id="quickTable">
+      <thead><tr><th>Strain</th><th>Type</th><th>Breeder of record</th><th>Lineage</th><th>Flag</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="sec-h"><h3>Terpene at-a-glance</h3><div class="rule"></div></div>
+  <div class="tbl-wrap">
+    <table id="terpTable">
+      <thead><tr><th>Strain</th><th>Dominant terpenes</th><th>Aroma direction</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="sec-h"><h3>Strain cards</h3><div class="rule"></div></div>
+  <div class="grid" id="cards"></div>
+
+  <div class="sec-h"><h3>Sourcing flags to resolve before packaging</h3><div class="rule"></div></div>
+  <ul class="flagbox" id="flagList"></ul>
+
+  <footer>
+    <div id="footMeta"></div>
+    <p>Edits are saved in this browser (localStorage key <code id="lskey"></code>). Use <b>Export JSON</b> to commit changes back to the repo's <code>cannacrypted.json</code>, or <b>Download HTML</b> for a self-contained snapshot. Terpene &amp; THC figures are directional — verify against batch COAs before printing labels.</p>
+  </footer>
+</div>
+
+<script id="seed" type="application/json">
+{
+  "schema": "cannacrypted",
+  "callId": "kaleidescope-collab.cannacrypted",
+  "version": "1.0.0",
+  "title": "New Strains — Breeder, Lineage & Terpene Report",
+  "preparedFor": "JBD / Dragonfly menu planning",
+  "asOf": "2026-06",
+  "disclaimer": "Lineages reflect breeder-of-record claims and the most widely documented pedigrees as of mid-2026. Terpene listings are the commonly reported dominants — actual order and totals vary by phenotype, grow and cure, so verify against batch COAs. Several names are used by multiple breeders; where a cut is contested it is flagged — confirm the cut and COA at sourcing before committing it to packaging.",
+  "strains": [
+    {
+      "id": "blue-zushi",
+      "name": "Blue Zushi",
+      "type": "Indica-lean hybrid",
+      "breeder": "Originally a CA scene cut attributed to TenCo (~2019); now in seed form via Dutch Passion, Original Sensible, Growers Choice and others.",
+      "lineage": "Zkittlez × Kush Mints",
+      "terpenes": ["Limonene", "Caryophyllene", "Humulene", "Myrcene (some cuts)"],
+      "aroma": "Sweet candy-berry with mint and a tropical edge.",
+      "thc": "24–30%",
+      "flag": "Scene cut – multiple versions",
+      "notes": "Indica-leaning (~60/40). Blue-tinted dense flower, high resin. Not one fixed genetic — traces to a U.S. clone whose exact parents were never fully documented; each seed house has its own interpretation, so the cut matters for phenotype, terps and potency.",
+      "sources": [
+        {"label": "Dutch Passion — Blue Zushi", "url": "https://dutch-passion.com/en/blog/blue-zushi-n1012"},
+        {"label": "Leafly — Blue Zushi", "url": "https://www.leafly.com/strains/blue-zushi"}
+      ],
+      "image": ""
+    },
+    {
+      "id": "scented-marker-zm8",
+      "name": "Scented Marker (in-house · ZM8)",
+      "type": "Hybrid",
+      "breeder": "JBD in-house (\"ZM8\")",
+      "lineage": "Permanent Marker × Zkittlez",
+      "terpenes": ["Caryophyllene", "Limonene", "Myrcene"],
+      "aroma": "Solvent / marker-ink funk and floral candy-gas over Zkittlez candy sweetness.",
+      "thc": "High-20s to low-30s (Permanent Marker side)",
+      "flag": "Your cross",
+      "notes": "ZM8 stacks Permanent Marker's gassy dessert-funk and color onto Zkittlez's candy sweetness. Permanent Marker = Seed Junky Genetics (bred by JBeezy), (Biscotti × Sherb Bx) × Jealousy, Leafly Strain of the Year 2023. Zkittlez = 3rd Coast / Dying Breed, Grape Ape × Grapefruit (+ undisclosed third). Strong house-exclusive story: SOTY-2023 pedigree on one side, Zkittlez candy lineage on the other.",
+      "sources": [
+        {"label": "Leafly — Permanent Marker (SOTY 2023)", "url": "https://www.leafly.com/news/strains-products/permanent-marker-2023-leafly-strain-of-the-year"},
+        {"label": "Leafly — Permanent Marker strain", "url": "https://www.leafly.com/strains/permanent-marker"},
+        {"label": "Leafly — Zkittlez", "url": "https://www.leafly.com/strains/zkittlez"}
+      ],
+      "image": ""
+    },
+    {
+      "id": "subzero",
+      "name": "Subzero",
+      "type": "Hybrid",
+      "breeder": "GrowMoreFire Genetics (likely current-market cut)",
+      "lineage": "Super Boof × Oreoz (\"Sub Zero #12\" / GMSL cut)",
+      "terpenes": ["Myrcene", "Limonene", "Caryophyllene", "Pinene"],
+      "aroma": "Cookies-and-cream, minty pine, heavy diesel funk.",
+      "thc": "20–28%+",
+      "flag": "Name reused – confirm cut",
+      "notes": "A 2026 breakout — extreme white/silver trichome frost, dense purple-leaning buds. This is the one that is \"new\" right now. Other lines exist: North Genetics' Subzero = Strawberry Diesel × (Chemdawg × Hindu Kush) — a completely different plant. Confirm which Subzero the source is offering.",
+      "sources": [
+        {"label": "Leafly — Super Boof", "url": "https://www.leafly.com/strains/super-boof"},
+        {"label": "Leafly — Oreoz", "url": "https://www.leafly.com/strains/oreoz"}
+      ],
+      "image": ""
+    },
+    {
+      "id": "papaya",
+      "name": "Papaya",
+      "type": "Indica-lean hybrid",
+      "breeder": "Nirvana Seeds",
+      "lineage": "Citral #13 × Ice #2 (current)",
+      "terpenes": ["Myrcene", "Caryophyllene", "Limonene", "Humulene"],
+      "aroma": "Ripe papaya/mango with peppery spice.",
+      "thc": "~20%+",
+      "flag": "Legacy Papaya differs",
+      "notes": "Citral #13 (Pakistani indica, citrus + resin) brings tropical-fruit terps; Ice #2 (Afghan/Skunk/Northern Lights, '98 Cannabis Cup winner) brings frost, potency, disease resistance. Indica-leaning, fast finish, very resinous — a favorite for solventless hash. Nirvana reformulated ~2022; legacy Papaya (pre-2022) was Jack Herer × Skunk #1, a different, more narcotic plant. Specify which Papaya the cut is.",
+      "sources": [
+        {"label": "Nirvana Seeds", "url": "https://www.nirvanashop.com/en/feminized/papaya"},
+        {"label": "Leafly — Papaya", "url": "https://www.leafly.com/strains/papaya"}
+      ],
+      "image": ""
+    },
+    {
+      "id": "lime",
+      "name": "Lime",
+      "type": "Hybrid",
+      "breeder": "Unclear — confirm with source",
+      "lineage": "Likely Key Lime Pie–type / lime-forward citrus cut",
+      "terpenes": ["Limonene", "Caryophyllene", "Myrcene"],
+      "aroma": "Bright lime zest and citrus peel over sweet dough.",
+      "thc": "—",
+      "flag": "Ambiguous – confirm",
+      "notes": "No single canonical \"Lime\" strain. Most probable: Key Lime Pie (a citrus-forward GSC/Cookies pheno; lime-zest-and-dough, indica-leaning, often shortened to \"Key Lime\"/\"Lime\") OR a lime-forward limonene-led cut (Lime OG / Lime Sorbet / house citrus pheno). Confirm whether this is a Key Lime Pie cut or a different lime selection before it goes on a label.",
+      "sources": [
+        {"label": "Leafly — Key Lime Pie", "url": "https://www.leafly.com/strains/key-lime-pie"}
+      ],
+      "image": ""
+    },
+    {
+      "id": "mob",
+      "name": "MOB",
+      "type": "Indica",
+      "breeder": "T.H. Seeds (Amsterdam) — genetics are an East Coast / Maine legacy strain",
+      "lineage": "\"Mother of Berries\" — Maine legacy (Blueberry/Afghan); exact parents legacy/undocumented",
+      "terpenes": ["Myrcene", "Limonene", "Caryophyllene"],
+      "aroma": "Wild blueberry / berry jam, sweet pie.",
+      "thc": "~20%+",
+      "flag": "Several MOB meanings",
+      "notes": "a.k.a. Mother of All Berries / Maine Original Blueberry — a near-pure indica. Fast-finishing, squat, purple, deeply relaxing/sedative. 2nd in Indica at the 2015 Expo Grow Cup. Given an East Coast footprint, the Maine \"Mother of Berries\" provenance is an authentic angle. \"MOB\" also gets used for Mob Boss, Candy Mob, etc. — but as standalone \"MOB\" it is Mother of Berries.",
+      "sources": [
+        {"label": "T.H. Seeds — official", "url": "https://thseeds.com/"},
+        {"label": "Leafly — Mother of Berries", "url": "https://www.leafly.com/strains/mother-of-berries"}
+      ],
+      "image": ""
+    },
+    {
+      "id": "sherb-x-blue-nerdz",
+      "name": "Sherb × Blue Nerdz",
+      "type": "Hybrid",
+      "breeder": "Cross (grower / in-house pairing)",
+      "lineage": "Sherb (Sunset Sherbert family) × Blue Nerdz",
+      "terpenes": ["Limonene", "Myrcene", "Caryophyllene"],
+      "aroma": "Creamy sherbet meeting candy-berry and gas.",
+      "thc": "20–26% (Blue Nerdz side)",
+      "flag": "Blue Nerdz contested",
+      "notes": "Sherb = Sunset Sherbert family (GSC × Pink Panties origin); creamy, fruity, gassy dessert, often as \"Sherb Bx\". Blue Nerdz is contested — two main cuts: Runtz × Zkittlez (Global Genetics LA, Spannabis 2024) and an older Forbidden Fruit × Watermelon Z (SoHum Royal). Net: a candy-gas × dessert pairing. Confirm which Blue Nerdz parent was used — the two cuts pull in different terpene directions (candy-gas vs. tropical-berry).",
+      "sources": [
+        {"label": "Leafly — Sunset Sherbert", "url": "https://www.leafly.com/strains/sunset-sherbert"},
+        {"label": "Leafly — Blue Nerdz", "url": "https://www.leafly.com/strains/blue-nerds"}
+      ],
+      "image": ""
+    },
+    {
+      "id": "pink-panties",
+      "name": "Pink Panties",
+      "type": "Indica-dominant",
+      "breeder": "Mr. Sherbinski / Cookie Fam (clone-only, ~2011)",
+      "lineage": "Burmese Kush × Florida Kush (OG)",
+      "terpenes": ["Caryophyllene", "Myrcene", "Linalool"],
+      "aroma": "Tart citrus and floral over an earthy Kush base.",
+      "thc": "High",
+      "flag": "\"Painties\" = Panties",
+      "notes": "Written \"Pink Painties\" on the list. Indica-dominant (~70/30), dense colas that blush pink/purple in cool temps, evening/sedative lean. Historically significant as a parent of Sunset Sherbert (and by extension a grandparent of the Gelato line) — strong pedigree to cite.",
+      "sources": [
+        {"label": "Sherbinski — official", "url": "https://sherbinski.com/"},
+        {"label": "Leafly — Pink Panties", "url": "https://www.leafly.com/strains/pink-panties"}
+      ],
+      "image": ""
+    },
+    {
+      "id": "cereal-milk",
+      "name": "Cereal Milk",
+      "type": "Balanced hybrid",
+      "breeder": "Powerzzzup Genetics (Kenny Dumetz) × Cookies (Berner's Cookie Fam)",
+      "lineage": "Y Life (GSC × Cherry Pie) × Snowman (sativa-leaning GSC pheno)",
+      "terpenes": ["Myrcene", "Limonene", "Caryophyllene"],
+      "aroma": "Sweet milk, vanilla and doughy cereal with a hint of gas.",
+      "thc": "16–25% (cut-dependent)",
+      "flag": "—",
+      "notes": "A sister pheno from the same seed hunt that produced Gary Payton. Balanced hybrid, frosty. Award history (Leafly best-of 2021, later cup recognition).",
+      "sources": [
+        {"label": "Cookies — official", "url": "https://cookies.co/"},
+        {"label": "Leafly — Cereal Milk", "url": "https://www.leafly.com/strains/cereal-milk"}
+      ],
+      "image": ""
+    },
+    {
+      "id": "blueberry-muffin",
+      "name": "Blueberry Muffin",
+      "type": "Indica-lean hybrid",
+      "breeder": "Humboldt Seed Company (Humboldt County, CA)",
+      "lineage": "Purple Panty Dropper × Razzleberry (stabilized F9 line)",
+      "terpenes": ["Myrcene (~0.8–1.2%)", "Linalool", "Caryophyllene", "Pinene"],
+      "aroma": "Genuine fresh blueberry muffin / bakery.",
+      "thc": "~mid-20s",
+      "flag": "Added per note",
+      "notes": "Indica-leaning (~60/40), purple-flecked frosty colas, fast 45–50 day finish. A cup winner and a reliable, high-bag-appeal flagship — easy seller on a menu.",
+      "sources": [
+        {"label": "Humboldt Seed Company — Blueberry Muffin", "url": "https://humboldtseedcompany.com/blueberry-muffin-cannabis-strain/"},
+        {"label": "Leafly — Blueberry Muffin", "url": "https://www.leafly.com/strains/blueberry-muffin"}
+      ],
+      "image": ""
+    }
+  ],
+  "sourcingFlags": [
+    "Subzero, Lime, MOB, Blue Nerdz — names used by more than one breeder. Get breeder name + COA on each so the printed lineage is accurate.",
+    "Papaya — confirm it is the current Nirvana Citral × Ice, not the legacy Jack Herer × Skunk.",
+    "Scented Marker / ZM8 — your own cross; you control the lineage claim (Permanent Marker × Zkittlez).",
+    "Terpene and THC figures are aggregated from breeder, lab-profile and dispensary sources and vary by phenotype, grow, and cure — treat them as directional, not guaranteed. Confirm against batch COAs before printing."
+  ]
+}
+</script>
+<script>
+(function(){
+  "use strict";
+  var LS_KEY = "kaleidescope-collab.cannacrypted";
+  document.getElementById("lskey").textContent = LS_KEY;
+
+  var SEED = JSON.parse(document.getElementById("seed").textContent);
+  var data = load();
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(LS_KEY);
+      if(raw){ var d = JSON.parse(raw); if(d && d.strains) return d; }
+    }catch(e){}
+    return deepClone(SEED);
+  }
+  function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+  function save(silent){
+    try{
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+      flashSaved(silent ? "" : "Saved ✓");
+    }catch(e){ flashSaved("Save failed: "+e.message); }
+  }
+  var savedTimer;
+  function flashSaved(msg){
+    var n = document.getElementById("savedNote");
+    n.textContent = msg;
+    clearTimeout(savedTimer);
+    if(msg) savedTimer = setTimeout(function(){ n.textContent=""; }, 1800);
+  }
+
+  function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+
+  function terpClass(t){
+    var k = String(t).toLowerCase();
+    if(k.indexOf("limonene")>-1) return "t-limonene";
+    if(k.indexOf("caryophyllene")>-1) return "t-caryophyllene";
+    if(k.indexOf("myrcene")>-1) return "t-myrcene";
+    if(k.indexOf("humulene")>-1) return "t-humulene";
+    if(k.indexOf("pinene")>-1) return "t-pinene";
+    if(k.indexOf("linalool")>-1) return "t-linalool";
+    return "t-default";
+  }
+
+  /* ---------- Header / meta ---------- */
+  function renderMeta(){
+    document.getElementById("docTitle").innerHTML = esc(data.title);
+    document.getElementById("callId").textContent = data.callId || LS_KEY;
+    document.getElementById("docSub").textContent =
+      "Prepared for " + (data.preparedFor||"") + " · " + (data.asOf||"");
+    document.getElementById("disclaimer").innerHTML = "<b>Read before sourcing.</b> " + esc(data.disclaimer);
+    document.getElementById("footMeta").innerHTML =
+      "Schema <b>"+esc(data.schema)+"</b> · call id <code>"+esc(data.callId)+"</code> · v"+esc(data.version)+" · "+data.strains.length+" strains.";
+  }
+
+  /* ---------- Filters ---------- */
+  function buildFilters(){
+    var types = {}, terps = {};
+    data.strains.forEach(function(s){
+      if(s.type) types[s.type]=1;
+      (s.terpenes||[]).forEach(function(t){
+        var base = String(t).replace(/\s*\(.*\)/,"").trim();
+        terps[base]=1;
+      });
+    });
+    fill("typeFilter", Object.keys(types).sort());
+    fill("terpFilter", Object.keys(terps).sort());
+  }
+  function fill(id, arr){
+    var sel = document.getElementById(id);
+    var first = sel.options[0];
+    sel.innerHTML=""; sel.appendChild(first);
+    arr.forEach(function(v){
+      var o=document.createElement("option"); o.value=v; o.textContent=v; sel.appendChild(o);
+    });
+  }
+
+  /* ---------- Tables ---------- */
+  function renderTables(){
+    var qb = document.querySelector("#quickTable tbody"); qb.innerHTML="";
+    var tb = document.querySelector("#terpTable tbody"); tb.innerHTML="";
+    data.strains.forEach(function(s){
+      var flagOk = (!s.flag || s.flag==="—");
+      var qr = document.createElement("tr");
+      qr.innerHTML =
+        '<td><a class="jump" href="#'+esc(s.id)+'">'+esc(s.name)+'</a></td>'+
+        '<td>'+esc(s.type)+'</td>'+
+        '<td>'+esc(s.breeder)+'</td>'+
+        '<td>'+esc(s.lineage)+'</td>'+
+        '<td class="'+(flagOk?'':'row-flag')+'">'+esc(s.flag||"—")+'</td>';
+      qb.appendChild(qr);
+
+      var terps = (s.terpenes||[]).map(function(t){
+        return '<span class="terp '+terpClass(t)+'">'+esc(t)+'</span>'; }).join(" ");
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td><a class="jump" href="#'+esc(s.id)+'">'+esc(s.name)+'</a></td>'+
+        '<td><div class="terps">'+terps+'</div></td>'+
+        '<td>'+esc(s.aroma)+'</td>';
+      tb.appendChild(tr);
+    });
+  }
+
+  /* ---------- Cards ---------- */
+  function renderCards(){
+    var wrap = document.getElementById("cards"); wrap.innerHTML="";
+    data.strains.forEach(function(s, idx){
+      var flagOk = (!s.flag || s.flag==="—");
+      var card = document.createElement("div");
+      card.className="card"; card.id=s.id; card.dataset.idx=idx;
+
+      var terps = (s.terpenes||[]).map(function(t){
+        return '<span class="terp '+terpClass(t)+'">'+esc(t)+'</span>'; }).join("");
+      var sources = (s.sources||[]).map(function(src){
+        return '<a class="src" target="_blank" rel="noopener" href="'+esc(src.url)+'">'+esc(src.label)+'</a>';
+      }).join("");
+      var imgInner = s.image
+        ? '<img src="'+esc(s.image)+'" alt="'+esc(s.name)+'">'
+        : '<div class="imgph"><span class="lf">🌿</span>No image yet<br><span style="font-size:11px">turn on Edit mode → add URL or upload</span></div>';
+
+      card.innerHTML =
+        '<div class="imgbox">'+imgInner+
+          '<div class="img-tools">'+
+            '<button class="mini" data-act="imgurl">URL</button>'+
+            '<button class="mini" data-act="imgupload">Upload</button>'+
+            (s.image?'<button class="mini" data-act="imgclear">Clear</button>':'')+
+          '</div>'+
+        '</div>'+
+        '<div class="body">'+
+          '<div class="cap">'+
+            '<div>'+
+              '<div class="num">#'+(idx+1)+'</div>'+
+              '<h4 data-edit="name" '+ce()+'>'+esc(s.name)+'</h4>'+
+            '</div>'+
+            '<div class="badges">'+
+              '<span class="badge type" data-edit="type" '+ce()+'>'+esc(s.type)+'</span>'+
+              '<span class="badge flag '+(flagOk?'ok':'')+'" data-edit="flag" '+ce()+'>'+esc(s.flag||"—")+'</span>'+
+            '</div>'+
+          '</div>'+
+          field("Breeder of record","breeder",s.breeder)+
+          field("Lineage","lineage",s.lineage)+
+          '<div class="field"><span class="lab">Dominant terpenes</span>'+
+            '<div class="val terps" data-terps>'+terps+'</div>'+
+            '<div class="edit-only"><label>Terpenes (comma-separated)</label>'+
+              '<input type="text" data-edit-terps value="'+esc((s.terpenes||[]).join(", "))+'"></div>'+
+          '</div>'+
+          field("Aroma","aroma",s.aroma)+
+          field("Typical THC","thc",s.thc)+
+          '<div class="field"><span class="lab">Notes</span>'+
+            '<div class="val notes" data-edit="notes" '+ce()+'>'+esc(s.notes)+'</div></div>'+
+          '<div class="field"><span class="lab">Sources</span>'+
+            '<div class="sources">'+(sources||'<span class="val notes">—</span>')+'</div>'+
+            '<div class="edit-only"><label>Sources (one per line: Label | https://url)</label>'+
+              '<textarea rows="3" data-edit-sources>'+esc((s.sources||[]).map(function(x){return x.label+" | "+x.url;}).join("\n"))+'</textarea></div>'+
+          '</div>'+
+        '</div>';
+      wrap.appendChild(card);
+    });
+    bindCardEvents();
+  }
+  function ce(){ return editing?'contenteditable="true"':''; }
+  function field(lab, key, val){
+    return '<div class="field"><span class="lab">'+lab+'</span>'+
+      '<div class="val" data-edit="'+key+'" '+ce()+'>'+esc(val)+'</div></div>';
+  }
+
+  function bindCardEvents(){
+    // text fields
+    document.querySelectorAll("#cards [data-edit]").forEach(function(el){
+      el.addEventListener("blur", function(){
+        var card = el.closest(".card"); var s = data.strains[+card.dataset.idx];
+        s[el.getAttribute("data-edit")] = el.textContent.trim();
+        save();
+      });
+    });
+    // terpenes
+    document.querySelectorAll("#cards [data-edit-terps]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var card = inp.closest(".card"); var s = data.strains[+card.dataset.idx];
+        s.terpenes = inp.value.split(",").map(function(x){return x.trim();}).filter(Boolean);
+        save(); refreshTerps(card, s);
+      });
+    });
+    // sources
+    document.querySelectorAll("#cards [data-edit-sources]").forEach(function(ta){
+      ta.addEventListener("change", function(){
+        var card = ta.closest(".card"); var s = data.strains[+card.dataset.idx];
+        s.sources = ta.value.split("\n").map(function(line){
+          var parts = line.split("|"); var label=(parts[0]||"").trim(); var url=(parts[1]||"").trim();
+          if(!label && !url) return null;
+          return {label:label||url, url:url||"#"};
+        }).filter(Boolean);
+        save(); renderCards(); applyEditingClass();
+      });
+    });
+    // image tools
+    document.querySelectorAll("#cards [data-act]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var card = btn.closest(".card"); var s = data.strains[+card.dataset.idx];
+        var act = btn.getAttribute("data-act");
+        if(act==="imgurl"){
+          var u = prompt("Paste image URL for "+s.name+":", s.image||"");
+          if(u!==null){ s.image=u.trim(); save(); renderCards(); applyEditingClass(); }
+        } else if(act==="imgclear"){
+          s.image=""; save(); renderCards(); applyEditingClass();
+        } else if(act==="imgupload"){
+          var fi = document.createElement("input"); fi.type="file"; fi.accept="image/*";
+          fi.onchange=function(){
+            var f=fi.files[0]; if(!f) return;
+            var r=new FileReader();
+            r.onload=function(){ s.image=r.result; save(); renderCards(); applyEditingClass(); };
+            r.readAsDataURL(f);
+          };
+          fi.click();
+        }
+      });
+    });
+  }
+  function refreshTerps(card, s){
+    var box = card.querySelector("[data-terps]");
+    box.innerHTML = (s.terpenes||[]).map(function(t){
+      return '<span class="terp '+terpClass(t)+'">'+esc(t)+'</span>'; }).join("");
+  }
+
+  /* ---------- Flags ---------- */
+  function renderFlags(){
+    var ul = document.getElementById("flagList"); ul.innerHTML="";
+    (data.sourcingFlags||[]).forEach(function(f){
+      var li=document.createElement("li"); li.textContent=f; ul.appendChild(li);
+    });
+  }
+
+  /* ---------- Edit mode ---------- */
+  var editing = false;
+  function applyEditingClass(){
+    document.body.classList.toggle("editing", editing);
+    document.querySelectorAll("#cards [data-edit]").forEach(function(el){
+      if(editing) el.setAttribute("contenteditable","true");
+      else el.removeAttribute("contenteditable");
+    });
+    var b=document.getElementById("editBtn");
+    b.classList.toggle("active", editing);
+    b.textContent = editing ? "✓ Done editing" : "✎ Edit mode";
+  }
+  document.getElementById("editBtn").addEventListener("click", function(){
+    editing=!editing; applyEditingClass();
+    if(editing) flashSaved("Edit mode on — click any field");
+  });
+
+  /* ---------- Search / filter ---------- */
+  function applyFilter(){
+    var q = document.getElementById("search").value.toLowerCase().trim();
+    var tf = document.getElementById("typeFilter").value;
+    var pf = document.getElementById("terpFilter").value;
+    document.querySelectorAll("#cards .card").forEach(function(card){
+      var s = data.strains[+card.dataset.idx];
+      var hay = [s.name,s.breeder,s.lineage,s.aroma,s.notes,(s.terpenes||[]).join(" ")].join(" ").toLowerCase();
+      var ok = (!q || hay.indexOf(q)>-1)
+        && (!tf || s.type===tf)
+        && (!pf || (s.terpenes||[]).some(function(t){return t.toLowerCase().indexOf(pf.toLowerCase())>-1;}));
+      card.classList.toggle("hidden", !ok);
+    });
+  }
+  ["search","typeFilter","terpFilter"].forEach(function(id){
+    document.getElementById(id).addEventListener("input", applyFilter);
+  });
+
+  /* ---------- Export / Import / Reset / HTML ---------- */
+  document.getElementById("exportBtn").addEventListener("click", function(){
+    downloadBlob(JSON.stringify(data,null,2), "cannacrypted.json", "application/json");
+  });
+  document.getElementById("importBtn").addEventListener("click", function(){
+    document.getElementById("importFile").click();
+  });
+  document.getElementById("importFile").addEventListener("change", function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(){
+      try{ var d=JSON.parse(r.result); if(!d.strains) throw new Error("not a cannacrypted file");
+        data=d; save(); renderAll(); flashSaved("Imported ✓");
+      }catch(err){ alert("Import failed: "+err.message); }
+    };
+    r.readAsText(f); e.target.value="";
+  });
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    if(confirm("Reset all edits back to the original report? This clears your saved changes in this browser.")){
+      localStorage.removeItem(LS_KEY); data=deepClone(SEED); renderAll(); flashSaved("Reset ✓");
+    }
+  });
+  document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
+  document.getElementById("htmlBtn").addEventListener("click", function(){
+    var doc = "<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+    // bake current data into the seed script so the snapshot opens with edits applied
+    doc = doc.replace(/<script id="seed"[\s\S]*?<\/script>/,
+      '<script id="seed" type="application/json">\n'+JSON.stringify(data,null,2).replace(/<\//g,"<\\/")+'\n<\/script>');
+    downloadBlob(doc, "cannacrypted-index.html", "text/html");
+  });
+  function downloadBlob(content, name, type){
+    var blob=new Blob([content],{type:type});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},1500);
+  }
+
+  /* ---------- Render all ---------- */
+  function renderAll(){
+    renderMeta(); buildFilters(); renderTables(); renderCards(); renderFlags();
+    applyEditingClass(); applyFilter();
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
