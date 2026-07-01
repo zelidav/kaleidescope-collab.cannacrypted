@@ -1,71 +1,61 @@
-# kaleidescope-collab.cannacrypted
+# Collab Genetics — Internal Genetics Alignment
 
-Interactive, editable strain reference for JBD / Dragonfly menu planning — built from the
-**New Strains — Breeder, Lineage & Terpene Report** (June 2026). Hosted under the
-`cannacrypted` schema, call id **`kaleidescope-collab.cannacrypted`**.
+Internal working tool for the **Jerome Baker × The Kaleidoscope Collective** teams to align on
+genetics, terpene profiles, lineage and imagery for the flower drop. **Not customer-facing** —
+it may become the public page later, once fully populated and validated by the Kaleidoscope team.
 
-10 strains with breeder of record, lineage, dominant terpene profiles (color-coded),
-aroma, typical THC, sourcing flags, notes, and external source links — all editable
-in the browser, with image slots per strain.
+Branding/palette pulled from the collab label (`TKC_Label_R2` p1): the kaleidoscope emblem +
+six jewel tones (blue/yellow/green/purple/red/orange) on a holographic ring.
 
-## Files
+## How it works
 
-| File | Purpose |
-|------|---------|
-| `index.html` | The site. Self-contained — no build step, no dependencies. Open it directly or serve it. |
-| `cannacrypted.json` | The data, in the `cannacrypted` schema. Edit this to change the defaults baked into the page. |
-| `.nojekyll` | Tells GitHub Pages to serve the files as-is. |
+- **Gated:** the static shell (this repo / GitHub Pages) carries **no genetics data**. On load it
+  shows a **Team access** lock; enter the shared team password to unlock.
+- **Live shared data:** after unlock, the page fetches the canonical data from the backend and
+  renders it. Everyone on the team sees the same version.
+- **Edit → Publish:** turn on **Edit mode**, change any field (name, type, breeder, lineage,
+  terpenes, aroma, THC, notes, sources) or add images, then click **Publish live** — the change is
+  saved to the backend and visible to the whole team. **Get latest** pulls the newest published
+  version. Edits autosave locally as an unpublished draft until you Publish.
 
-## Deploy to GitHub Pages
+No JSON export/import — publishing is the whole flow.
 
-1. Create a repo (e.g. `kaleidescope-collab.cannacrypted`) and push these files to the `main` branch root.
-2. Repo **Settings → Pages → Build and deployment → Source: Deploy from a branch**, branch `main`, folder `/ (root)`. Save.
-3. Your page goes live at `https://<user>.github.io/<repo>/` within a minute or two.
+## Architecture
 
-```bash
-git init
-git add index.html cannacrypted.json README.md .nojekyll
-git commit -m "cannacrypted: kaleidescope-collab strain report"
-git branch -M main
-git remote add origin https://github.com/<user>/kaleidescope-collab.cannacrypted.git
-git push -u origin main
+```
+GitHub Pages (static shell, public)          Cloud Run: kaleidescope-collab (project jbd-glass)
+  index.html  ── fetch /data (X-Team-Key) ──►  GET  /check   validate password
+  assets/…                                     GET  /data     canonical JSON   (key required)
+  cannacrypted.json  = empty placeholder       POST /publish  overwrite JSON   (key required)
+                                                     │
+                                               GCS: gs://jbd-glass-kaleidescope-collab/cannacrypted.json
 ```
 
-## How editing works
+- **Frontend:** `index.html` (self-contained). API base + team-key handling live in the inline script.
+- **Backend:** `server/` — Flask on Cloud Run (`us-east1`), auth via a single shared `TEAM_KEY`
+  (env var), data stored as one object in a GCS bucket. `server/.publish_key.local` holds the key
+  locally and is gitignored.
 
-The page is a static site, so edits are saved in **your browser** (localStorage key
-`kaleidescope-collab.cannacrypted`) — they survive reloads on the same machine/browser.
-
-- **✎ Edit mode** — click any field (name, type, breeder, lineage, terpenes, aroma, THC,
-  notes, flags, sources) to edit inline. Changes autosave locally.
-- **Images** — in Edit mode each card shows **URL / Upload / Clear**. Paste a hosted image
-  URL, or upload a local file (stored inline as a data URL).
-- **⤓ Export JSON** — download the current state as `cannacrypted.json`. Commit it back to
-  the repo to make your edits the new defaults for everyone.
-- **⤒ Import JSON** — load a previously exported file.
-- **⤓ Download HTML** — a self-contained snapshot with your current edits baked in.
-- **↺ Reset** — clears local edits back to the committed report.
-
-To make edits permanent for all visitors: edit on the page → **Export JSON** → replace
-`cannacrypted.json` in the repo → also paste that JSON into the `<script id="seed">` block
-in `index.html` (or just re-run the one-liner below) → commit.
+### Backend ops
 
 ```bash
-# re-bake cannacrypted.json into index.html's seed block
-python3 - <<'PY'
-import json,re
-data=open('cannacrypted.json').read().strip()
-html=open('index.html').read()
-html=re.sub(r'(<script id="seed" type="application/json">)(.*?)(</script>)',
-            lambda m:m.group(1)+"\n"+data+"\n"+m.group(3), html, flags=re.S)
-open('index.html','w').write(html)
-print('re-baked')
-PY
+# redeploy after editing server/
+cd server
+gcloud run deploy kaleidescope-collab --source . --project=jbd-glass --region=us-east1 \
+  --allow-unauthenticated \
+  --set-env-vars="BUCKET=jbd-glass-kaleidescope-collab,OBJECT=cannacrypted.json,TEAM_KEY=<key>"
+
+# rotate the team password
+gcloud run services update kaleidescope-collab --project=jbd-glass --region=us-east1 \
+  --update-env-vars="TEAM_KEY=<new-key>"
+
+# read/replace canonical data directly
+gcloud storage cat  gs://jbd-glass-kaleidescope-collab/cannacrypted.json
+gcloud storage cp cannacrypted.json gs://jbd-glass-kaleidescope-collab/cannacrypted.json
 ```
 
-## Sourcing caveats
+## Going customer-facing later
 
-Lineages reflect breeder-of-record claims and the most widely documented pedigrees as of
-mid-2026. Several names (Subzero, Lime, MOB, Blue Nerdz) are used by multiple breeders and
-are flagged on their cards — confirm the cut and batch COA before committing anything to
-packaging. Terpene and THC figures are directional, not guaranteed.
+When validated, flip this to public by baking the (approved) data back into the page and removing
+the lock — or keep the backend and just drop the gate on `/data`. Ask before doing this; the whole
+point right now is that it stays internal.
