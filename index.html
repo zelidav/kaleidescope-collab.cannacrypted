@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>cannacrypted · New Strains — Breeder, Lineage & Terpene Report</title>
+<title>Collab Genetics · Jerome Baker × The Kaleidoscope Collective · NY 2026</title>
 <style>
   :root{
     --bg:#0c0f0d; --bg2:#11161300; --panel:#141b17; --panel2:#1a231d;
@@ -11,13 +11,19 @@
     --accent:#5ee089; --accent2:#34c97a; --gold:#e8c75a;
     --warn:#eab14a; --danger:#ef6b6b; --chip:#1f2b23;
     --radius:14px; --shadow:0 8px 30px rgba(0,0,0,.45);
+    /* Jerome Baker × The Kaleidoscope Collective — label palette (TKC_Label_R2) */
+    --k-blue:#3752a4; --k-yellow:#f9ea09; --k-green:#0e733a;
+    --k-purple:#4c2c8b; --k-red:#df1e25; --k-orange:#f47e1f;
+    --holo1:#b0c6dc; --holo2:#e0adbc; --holo3:#c4dfeb; --holo4:#b99ebc;
+    --rainbow:linear-gradient(90deg,var(--k-red),var(--k-orange),var(--k-yellow),var(--k-green),var(--k-blue),var(--k-purple));
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{
     background:
-      radial-gradient(1200px 600px at 80% -10%, rgba(52,201,122,.10), transparent 60%),
-      radial-gradient(900px 500px at -10% 10%, rgba(94,224,137,.07), transparent 55%),
+      radial-gradient(1200px 620px at 82% -12%, rgba(185,158,188,.16), transparent 60%),
+      radial-gradient(1000px 560px at -12% 8%, rgba(176,198,220,.13), transparent 58%),
+      radial-gradient(900px 520px at 50% 118%, rgba(196,223,235,.11), transparent 60%),
       var(--bg);
     color:var(--text); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     line-height:1.5; -webkit-font-smoothing:antialiased;
@@ -77,7 +83,8 @@
   /* Section headers */
   .sec-h{display:flex;align-items:center;gap:12px;margin:34px 0 14px}
   .sec-h h3{margin:0;font-size:18px;letter-spacing:.02em}
-  .sec-h .rule{flex:1;height:1px;background:var(--line)}
+  .sec-h .rule{flex:1;height:2px;border-radius:2px;background:var(--rainbow);opacity:.55}
+  .sec-h h3{background:var(--rainbow);-webkit-background-clip:text;background-clip:text;color:transparent}
 
   /* Tables */
   .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius)}
@@ -92,10 +99,12 @@
   /* Cards */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
   .card{
+    position:relative;
     background:linear-gradient(180deg,var(--panel2),var(--panel));
     border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
     box-shadow:var(--shadow);display:flex;flex-direction:column;
   }
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;z-index:3;background:var(--rainbow);opacity:.85}
   .card .imgbox{
     position:relative;aspect-ratio:16/9;background:
       repeating-linear-gradient(45deg,#101712,#101712 12px,#0e140f 12px,#0e140f 24px);
@@ -161,19 +170,58 @@
   .flagbox li{margin:10px 0;color:var(--muted);font-size:13px}
   .hidden{display:none !important}
 
+  /* ── Jerome Baker × The Kaleidoscope Collective — collab hero ── */
+  .collab-hero{
+    position:relative;display:flex;align-items:center;gap:28px;flex-wrap:wrap;
+    padding:26px 28px;margin-bottom:22px;border-radius:20px;overflow:hidden;
+    background:
+      radial-gradient(120% 150% at 0% 0%, rgba(224,173,188,.22), transparent 55%),
+      radial-gradient(120% 150% at 100% 100%, rgba(176,198,220,.22), transparent 55%),
+      radial-gradient(90% 120% at 60% 20%, rgba(196,223,235,.14), transparent 60%),
+      linear-gradient(135deg, rgba(185,158,188,.14), rgba(196,223,235,.08)),
+      var(--panel);
+    border:1px solid var(--line2);
+    box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+  .collab-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--rainbow)}
+  .collab-hero .emblem{
+    width:150px;height:150px;flex:0 0 auto;border-radius:50%;
+    box-shadow:0 10px 34px rgba(0,0,0,.5), 0 0 0 4px rgba(255,255,255,.07), 0 0 40px rgba(224,173,188,.25);
+  }
+  .collab-copy{flex:1;min-width:260px}
+  .collab-copy .eyebrow{
+    font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:800;
+    background:var(--rainbow);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .collab-title{margin:9px 0 8px;font-size:clamp(22px,3.4vw,34px);font-weight:800;letter-spacing:-.01em;line-height:1.05;color:var(--text)}
+  .collab-title .x{background:var(--rainbow);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 3px;font-weight:900}
+  .collab-tag{margin:0;color:var(--muted);font-size:13.5px;max-width:660px}
+  @media (max-width:560px){ .collab-hero{gap:18px;padding:20px} .collab-hero .emblem{width:110px;height:110px} }
+
   @media print{
     .toolbar,.img-tools,.edit-only{display:none !important}
     body{background:#fff;color:#111}
     .card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
+    .collab-hero{border:1px solid #ccc;box-shadow:none}
+    .collab-title,.collab-copy .eyebrow,.sec-h h3{color:#111 !important;-webkit-text-fill-color:#111}
   }
 </style>
 </head>
 <body>
 <div class="wrap">
 
+  <div class="collab-hero">
+    <img class="emblem" src="assets/kaleidoscope-emblem.png"
+         alt="Jerome Baker × The Kaleidoscope Collective — Limited Edition, New York 2026">
+    <div class="collab-copy">
+      <div class="eyebrow">Limited Edition · New York 2026</div>
+      <div class="collab-title">Jerome Baker <span class="x">×</span> The Kaleidoscope Collective</div>
+      <p class="collab-tag">Collab Genetics — breeder of record, lineage &amp; terpene provenance for the drop. Community-editable; verify against batch COAs before packaging.</p>
+    </div>
+  </div>
+
   <header class="site">
     <div class="brand">
-      <div class="leaf">✦</div>
       <div>
         <h1>cannacrypted</h1>
         <div class="cid" id="callId">kaleidescope-collab.cannacrypted</div>
@@ -235,8 +283,8 @@
   "schema": "cannacrypted",
   "callId": "kaleidescope-collab.cannacrypted",
   "version": "1.0.0",
-  "title": "New Strains — Breeder, Lineage & Terpene Report",
-  "preparedFor": "JBD / Dragonfly menu planning",
+  "title": "Collab Genetics — Breeder, Lineage & Terpene Report",
+  "preparedFor": "Jerome Baker × The Kaleidoscope Collective",
   "asOf": "2026-06",
   "disclaimer": "Lineages reflect breeder-of-record claims and the most widely documented pedigrees as of mid-2026. Terpene listings are the commonly reported dominants — actual order and totals vary by phenotype, grow and cure, so verify against batch COAs. Several names are used by multiple breeders; where a cut is contested it is flagged — confirm the cut and COA at sourcing before committing it to packaging.",
   "strains": [
