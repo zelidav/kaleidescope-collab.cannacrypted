@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Jerome Baker × The Kaleidoscope Collective</title>
+<link rel="icon" href="../assets/kaleidoscope-emblem.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#2A3B8E;--blue-deep:#1A2566;--red:#DA2342;--yellow:#FFF100;--ink:#0A0A0A;--paper:#FFFFFF;--line:#D9DCE8;--mute:#55586A;--err:#B3122C}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:Montserrat,Helvetica,Arial,sans-serif;background:var(--blue-deep);color:var(--paper);
+  display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.card{width:100%;max-width:440px}
+.bar{display:flex;height:6px;margin-bottom:28px}
+.bar i{flex:1}.bar i:nth-child(1){background:var(--blue)}.bar i:nth-child(2){background:var(--yellow)}.bar i:nth-child(3){background:var(--red)}
+.k{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--yellow)}
+h1{font-size:30px;line-height:1.15;font-weight:900;margin:10px 0 12px}
+p{font-size:15px;line-height:1.55;color:#C9CFEA}
+form{display:flex;flex-direction:column;gap:10px;margin-top:26px}
+input{font:inherit;font-size:16px;padding:14px 16px;border:2px solid transparent;border-radius:4px;background:var(--paper);color:var(--ink)}
+input:focus{outline:none;border-color:var(--yellow)}
+button{font:inherit;font-weight:800;font-size:15px;letter-spacing:.04em;padding:14px 16px;border:0;border-radius:4px;
+  background:var(--yellow);color:var(--ink);cursor:pointer}
+button:disabled{opacity:.6;cursor:default}
+#err{min-height:20px;font-size:13px;font-weight:600;color:#FF9AAA}
+#err.note{color:#C9CFEA;font-weight:500}
+small{display:block;margin-top:18px;font-size:12px;line-height:1.5;color:#8F97C4}
+</style>
+</head>
+<body>
+<main class="card" id="gate">
+  <div class="bar"><i></i><i></i><i></i></div>
+  <div class="k">Jerome Baker × The Kaleidoscope Collective</div>
+  <h1>Where every dollar goes</h1>
+  <p>The unit economics behind the collaboration. Enter your email to open it.</p>
+  <form id="f" autocomplete="on">
+    <input id="em" type="email" name="email" placeholder="you@company.com" autocomplete="email" required>
+    <button type="submit">Open</button>
+    <div id="err" role="status"></div>
+  </form>
+  <small>Confidential. Your email is recorded with each visit.</small>
+</main>
+<script>
+var API = 'https://gate-production-4aac.up.railway.app/api/enter';
+var REMEMBER = 'jb_tkc_email';
+
+/* The document is not in this repo. The gate service hands it over one response per reader,
+   so every open is logged. */
+async function fetchDoc(email){
+  var r = await fetch(API, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      email: email,
+      screen: window.screen ? (screen.width + 'x' + screen.height) : '',
+      tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || '',
+      localTime: new Date().toString().replace(/\s*\(.*\)$/, ''),
+      referrer: document.referrer || ''
+    })
+  });
+  var j = await r.json().catch(function(){ return {}; });
+  if (!r.ok) throw new Error(j.error || 'Could not open the page. Please try again.');
+  return j.html;
+}
+
+/* The document is a complete page with its own styles and scripts, so it replaces this one
+   wholesale rather than being injected into a container. */
+function openDoc(html){
+  document.open();
+  document.write(html);
+  document.close();
+}
+
+document.getElementById('f').addEventListener('submit', async function(e){
+  e.preventDefault();
+  var err = document.getElementById('err');
+  var btn = this.querySelector('button');
+  var email = document.getElementById('em').value.trim();
+  btn.disabled = true;
+  err.className = 'note';
+  err.textContent = 'Opening…';
+  try {
+    var html = await fetchDoc(email);
+    try { localStorage.setItem(REMEMBER, email); } catch (_) {}
+    openDoc(html);
+  } catch (ex) {
+    err.className = '';
+    err.textContent = ex.message;
+    btn.disabled = false;
+  }
+});
+
+/* A returning reader goes straight in; the view is still recorded. */
+(async function resume(){
+  var saved = null;
+  try { saved = localStorage.getItem(REMEMBER); } catch (_) {}
+  if (!saved) return;
+  var err = document.getElementById('err');
+  document.getElementById('em').value = saved;
+  err.className = 'note';
+  err.textContent = 'Welcome back — opening…';
+  try {
+    openDoc(await fetchDoc(saved));
+  } catch (_) {
+    err.className = '';
+    err.textContent = '';
+  }
+})();
+</script>
+</body>
+</html>
