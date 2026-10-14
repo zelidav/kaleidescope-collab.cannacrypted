@@ -11,6 +11,7 @@
     "build": "vite build && node scripts/fetch-assets.mjs",
     "start": "node server/index.js",
     "local": "npm install --no-audit --no-fund && npm run build && node server/index.js",
+    "ipad": "npm install --no-audit --no-fund && npm run build && node scripts/ipad.mjs",
     "test": "node --test test/*.test.js"
   },
   "dependencies": {

@@ -152,6 +152,8 @@ There's also a fully offline **dry run**: if the IG variables are empty (or `DRY
 
 ## 9. iPad kiosk setup
 
+**Quick test before Railway is set up:** on your computer, in `collab-booth/`, run `npm run ipad`. It starts the booth and prints a QR code linking to a temporary https address (a Cloudflare quick tunnel). Scan it with the iPad camera. The iPad needs https for camera access, which is why a plain `http://<your-computer>:3000` won't work. Keep the computer awake while you test. The link changes every run, so use Railway for the actual show.
+
 1. Open the Railway URL in **Safari**, then **Share → Add to Home Screen**. Launch it from the home-screen icon, which runs it fullscreen.
 2. Allow camera access when prompted. If you ever denied it: **Settings → Apps → Safari → Camera → Allow** (on older iPadOS, **Settings → Safari → Camera**).
 3. **Settings → Display & Brightness → Auto-Lock → Never.** Keep the iPad plugged in, and keep **Low Power Mode off**.
