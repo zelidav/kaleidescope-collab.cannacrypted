@@ -10,6 +10,7 @@
     "dev": "concurrently -k \"node --watch server/index.js\" \"vite\"",
     "build": "vite build && node scripts/fetch-assets.mjs",
     "start": "node server/index.js",
+    "local": "npm install --no-audit --no-fund && npm run build && node server/index.js",
     "test": "node --test test/*.test.js"
   },
   "dependencies": {

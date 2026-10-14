@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      // JBD Collab Booth kiosk (http://localhost:3000) — admin at /admin, PIN 1234.
+      // Local dry run only: no Instagram credentials, so nothing is posted.
+      "name": "collab-booth",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "local"],
+      "cwd": "collab-booth",
+      "port": 3000,
+      "env": { "ADMIN_PIN": "1234", "PUBLIC_BASE_URL": "http://localhost:3000" }
+    }
+  ]
+}
